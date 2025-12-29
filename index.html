@@ -74,7 +74,7 @@ function readVerse() {
 
   utterance.onend = () => {
     index++;
-    setTimeout(readVerse, 800); // 절 사이 텀
+    setTimeout(readVerse, 400); // 절 사이 텀
   };
 
   speechSynthesis.speak(utterance);
@@ -83,3 +83,4 @@ function readVerse() {
 
 </body>
 </html>
+
