@@ -5,8 +5,20 @@
   <title>1년 성경 통독</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    body { font-size:22px; line-height:1.8; padding:20px; font-family:sans-serif; }
-    button { font-size:28px; padding:22px; width:100%; margin:25px 0; }
+    body {
+      font-size: 22px;
+      line-height: 1.8;
+      padding: 20px;
+      font-family: sans-serif;
+    }
+    #currentVerse {
+      font-size: 26px;
+      font-weight: bold;
+      margin-top: 30px;
+    }
+    #todayTitle {
+      color: #555;
+    }
   </style>
 </head>
 <body>
@@ -14,68 +26,59 @@
 <h1>📖 1년 성경 통독</h1>
 <h2 id="todayTitle">오늘의 말씀</h2>
 
-<button id="nextVerseBtn" disabled>▶ 다음 절 듣기</button>
-
-<p id="bibleText">로딩 중...</p>
+<p id="currentVerse">말씀을 불러오는 중입니다…</p>
 
 <script>
 let verses = [];
-let currentIndex = 0;
-let isReading = false;
+let index = 0;
 
-// 시작 날짜 설정
+// 시작 날짜
 const startDate = new Date("2025-01-01");
 const today = new Date();
-let dayIndex = Math.floor((today - startDate) / (1000*60*60*24));
-if(dayIndex < 0) dayIndex = 0;
+let dayIndex = Math.floor((today - startDate) / (1000 * 60 * 60 * 24));
+if (dayIndex < 0) dayIndex = 0;
 
-const dayFile = `day${dayIndex+1}.html`;
+const dayFile = `day${dayIndex + 1}.html`;
 
-// fetch로 오늘 분량 로드
+// 오늘 분량 로드
 fetch(dayFile)
-  .then(response => {
-    if(!response.ok) throw new Error("파일을 불러올 수 없음");
-    return response.text();
+  .then(res => {
+    if (!res.ok) throw new Error("파일 로드 실패");
+    return res.text();
   })
-  .then(data => {
-    document.getElementById("bibleText").innerText = data;
-    document.getElementById("todayTitle").innerText = `오늘의 말씀 – Day ${dayIndex+1}`;
+  .then(text => {
+    verses = text.split("\n").filter(v => v.trim() !== "");
+    document.getElementById("todayTitle").innerText =
+      `오늘의 말씀 – Day ${dayIndex + 1}`;
 
-    // 텍스트를 줄 단위로 나눠서 배열에 저장
-    verses = data.split("\n").filter(v => v.trim() !== "");
-
-    // 버튼 활성화
-    document.getElementById("nextVerseBtn").disabled = false;
+    readVerse(); // 자동 시작
   })
-  .catch(err => {
-    document.getElementById("bibleText").innerText = "오늘 분량을 불러올 수 없습니다.";
-    console.error(err);
+  .catch(() => {
+    document.getElementById("currentVerse").innerText =
+      "오늘의 말씀을 불러올 수 없습니다.";
   });
 
-// 한 절씩 읽기
-function readNextVerse() {
-  if(currentIndex >= verses.length) {
-    alert("오늘 분량을 모두 읽었습니다!");
+function readVerse() {
+  if (index >= verses.length) {
+    document.getElementById("currentVerse").innerText =
+      "오늘 말씀을 모두 읽었습니다.";
     return;
   }
 
-  if(isReading) return; // 현재 읽는 중이면 중복 실행 방지
-  isReading = true;
+  const verseText = verses[index];
+  document.getElementById("currentVerse").innerText = verseText;
 
-  const utterance = new SpeechSynthesisUtterance(verses[currentIndex]);
+  const utterance = new SpeechSynthesisUtterance(verseText);
   utterance.lang = "ko-KR";
   utterance.rate = 0.82;
 
   utterance.onend = () => {
-    currentIndex++;
-    isReading = false;
+    index++;
+    setTimeout(readVerse, 800); // 절 사이 텀
   };
 
   speechSynthesis.speak(utterance);
 }
-
-// 버튼에 연결
-document.getElementById("nextVerseBtn").addEventListener("click", readNextVerse);
 </script>
 
 </body>
