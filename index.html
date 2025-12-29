@@ -14,17 +14,14 @@
 <h1>📖 1년 성경 통독</h1>
 <h2 id="todayTitle">오늘의 말씀</h2>
 
-<button id="playBtn" onclick="startReading()" disabled>▶ 말씀 듣기</button>
-<button id="pauseBtn" onclick="pauseReading()" disabled>⏸ 일시정지</button>
-<button id="resumeBtn" onclick="resumeReading()" disabled>▶ 다시재생</button>
+<button id="nextVerseBtn" disabled>▶ 다음 절 듣기</button>
 
 <p id="bibleText">로딩 중...</p>
 
 <script>
 let verses = [];
 let currentIndex = 0;
-let isPaused = false;
-let timeoutId;
+let isReading = false;
 
 // 시작 날짜 설정
 const startDate = new Date("2025-01-01");
@@ -48,27 +45,22 @@ fetch(dayFile)
     verses = data.split("\n").filter(v => v.trim() !== "");
 
     // 버튼 활성화
-    document.getElementById("playBtn").disabled = false;
-    document.getElementById("pauseBtn").disabled = false;
-    document.getElementById("resumeBtn").disabled = false;
+    document.getElementById("nextVerseBtn").disabled = false;
   })
   .catch(err => {
     document.getElementById("bibleText").innerText = "오늘 분량을 불러올 수 없습니다.";
     console.error(err);
   });
 
-// 절 단위 읽기 시작
-function startReading() {
-  currentIndex = 0;
-  isPaused = false;
-  speechSynthesis.cancel();
-  clearTimeout(timeoutId);
-  readNextVerse();
-}
-
-// 다음 절 읽기
+// 한 절씩 읽기
 function readNextVerse() {
-  if(currentIndex >= verses.length || isPaused) return;
+  if(currentIndex >= verses.length) {
+    alert("오늘 분량을 모두 읽었습니다!");
+    return;
+  }
+
+  if(isReading) return; // 현재 읽는 중이면 중복 실행 방지
+  isReading = true;
 
   const utterance = new SpeechSynthesisUtterance(verses[currentIndex]);
   utterance.lang = "ko-KR";
@@ -76,25 +68,14 @@ function readNextVerse() {
 
   utterance.onend = () => {
     currentIndex++;
-    timeoutId = setTimeout(readNextVerse, 800); // 절 사이 텀
+    isReading = false;
   };
 
   speechSynthesis.speak(utterance);
 }
 
-function pauseReading() {
-  isPaused = true;
-  speechSynthesis.pause();
-  clearTimeout(timeoutId); // 텀 대기 취소
-}
-
-function resumeReading() {
-  if(!isPaused) return;
-  isPaused = false;
-
-  // 모바일 대응: 현재 index부터 절 단위로 새 utterance 생성
-  readNextVerse();
-}
+// 버튼에 연결
+document.getElementById("nextVerseBtn").addEventListener("click", readNextVerse);
 </script>
 
 </body>
