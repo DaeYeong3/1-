@@ -36,7 +36,10 @@ const dayFile = `day${dayIndex+1}.html`;
 
 // fetch로 오늘 분량 로드
 fetch(dayFile)
-  .then(response => response.text())
+  .then(response => {
+    if(!response.ok) throw new Error("파일을 불러올 수 없음");
+    return response.text();
+  })
   .then(data => {
     document.getElementById("bibleText").innerText = data;
     document.getElementById("todayTitle").innerText = `오늘의 말씀 – Day ${dayIndex+1}`;
@@ -45,6 +48,7 @@ fetch(dayFile)
     document.getElementById("bibleText").innerText = "오늘 분량을 불러올 수 없습니다.";
     console.error(err);
   });
+
 
 function readBible() {
   const text = document.getElementById("bibleText").innerText;
@@ -67,3 +71,4 @@ function resumeReading() {
 
 </body>
 </html>
+
