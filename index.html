@@ -19,6 +19,12 @@
     #todayTitle {
       color: #555;
     }
+    button {
+      font-size: 26px;
+      padding: 18px;
+      width: 100%;
+      margin: 15px 0;
+    }
   </style>
 </head>
 <body>
@@ -26,11 +32,16 @@
 <h1>📖 1년 성경 통독</h1>
 <h2 id="todayTitle">오늘의 말씀</h2>
 
+<button onclick="startReading()">▶ 말씀 듣기</button>
+<button onclick="stopReading()">⏸ 멈춤</button>
+
 <p id="currentVerse">말씀을 불러오는 중입니다…</p>
 
 <script>
 let verses = [];
 let index = 0;
+let isStopped = true;
+let currentUtterance = null;
 
 // 시작 날짜
 const startDate = new Date("2025-01-01");
@@ -50,15 +61,29 @@ fetch(dayFile)
     verses = text.split("\n").filter(v => v.trim() !== "");
     document.getElementById("todayTitle").innerText =
       `오늘의 말씀 – Day ${dayIndex + 1}`;
-
-    readVerse(); // 자동 시작
   })
   .catch(() => {
     document.getElementById("currentVerse").innerText =
       "오늘의 말씀을 불러올 수 없습니다.";
   });
 
+// ▶ 시작
+function startReading() {
+  if (!isStopped) return;   // 이미 읽는 중이면 무시
+  isStopped = false;
+  readVerse();
+}
+
+// ⏸ 멈춤
+function stopReading() {
+  isStopped = true;
+  speechSynthesis.cancel();
+}
+
+// 한 절씩 읽기
 function readVerse() {
+  if (isStopped) return;
+
   if (index >= verses.length) {
     document.getElementById("currentVerse").innerText =
       "오늘 말씀을 모두 읽었습니다.";
@@ -68,19 +93,18 @@ function readVerse() {
   const verseText = verses[index];
   document.getElementById("currentVerse").innerText = verseText;
 
-  const utterance = new SpeechSynthesisUtterance(verseText);
-  utterance.lang = "ko-KR";
-  utterance.rate = 0.82;
+  currentUtterance = new SpeechSynthesisUtterance(verseText);
+  currentUtterance.lang = "ko-KR";
+  currentUtterance.rate = 0.82;
 
-  utterance.onend = () => {
+  currentUtterance.onend = () => {
     index++;
     setTimeout(readVerse, 400); // 절 사이 텀
   };
 
-  speechSynthesis.speak(utterance);
+  speechSynthesis.speak(currentUtterance);
 }
 </script>
 
 </body>
 </html>
-
