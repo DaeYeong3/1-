@@ -197,10 +197,13 @@ function loadBibleByDate(date) {
    ▶ 시작
 ========================= */
 function startReading() {
-  if (!isStopped) return;
+  // 🔑 외부 요인으로 멈춘 경우까지 강제 초기화
+  speechSynthesis.cancel();
+
   isStopped = false;
   readVerse();
 }
+
 
 /* =========================
    ⏸ 멈춤
@@ -267,4 +270,5 @@ loadBibleByDate(today);
 
 </body>
 </html>
+
 
