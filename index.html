@@ -167,11 +167,13 @@ function loadBibleByDate(date) {
   // 🔴 [4번 핵심 적용 부분]
       if (index < verses.length) {
         document.getElementById("currentVerse").innerText =
-          `이어서 읽기 (${index + 1}/${verses.length})\n\n${verses[index]}`;
+          "이어서 읽기 (" + (index + 1) + "/" + verses.length + ")\n\n" +
+          verses[index];
       } else {
         document.getElementById("currentVerse").innerText =
           "오늘 말씀을 모두 읽었습니다.";
       }
+
     });
 
     })
@@ -254,4 +256,5 @@ loadBibleByDate(today);
 
 </body>
 </html>
+
 
