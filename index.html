@@ -70,6 +70,19 @@
 <button onclick="startReading()">▶ 말씀 듣기</button>
 <button onclick="stopReading()">⏸ 멈춤</button>
 <button onclick="restartReading()">🔁 처음부터 다시 듣기</button>
+<label style="display:block; margin-top:20px;">
+  🔊 읽기 속도:
+  <strong><span id="rateValue">0.8</span>x</strong>
+</label>
+
+<input
+  type="range"
+  id="rateSlider"
+  min="0.6"
+  max="1.4"
+  step="0.1"
+  value="0.8"
+  style="width:100%; margin-bottom:20px;">
 
 <!-- 📊 진행률 표시 -->
 <div id="progressContainer">
@@ -87,6 +100,7 @@ let verses = [];
 let index = 0;
 let isStopped = true;
 let currentUtterance = null;
+let speechRate = 0.8; // 읽기 속도 (슬라이더와 연결)
 
 /* =========================
    기준 시작 날짜
@@ -169,6 +183,14 @@ function loadBibleByDate(date) {
       document.getElementById("currentVerse").innerText =
         "말씀 파일을 불러올 수 없습니다.";
     });
+  const rateSlider = document.getElementById("rateSlider");
+  const rateValue = document.getElementById("rateValue");
+
+  rateSlider.addEventListener("input", () => {
+    speechRate = Number(rateSlider.value);
+    rateValue.innerText = speechRate;
+  });
+
 }
 
 /* =========================
@@ -218,7 +240,8 @@ function readVerse() {
 
   currentUtterance = new SpeechSynthesisUtterance(verseText);
   currentUtterance.lang = "ko-KR";
-  currentUtterance.rate = 0.82;
+  currentUtterance.rate = speechRate;
+
 
   currentUtterance.onend = () => {
     index++;
@@ -244,3 +267,4 @@ loadBibleByDate(today);
 
 </body>
 </html>
+
