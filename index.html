@@ -112,6 +112,8 @@ today.setHours(0, 0, 0, 0);
 const startDate = new Date(2026, 0, 1);
 startDate.setHours(0, 0, 0, 0);
 
+const initialDate = today < startDate ? startDate : today;
+  
 let dayIndex = Math.floor(
   (today - startDate) / (1000 * 60 * 60 * 24)
 );
@@ -146,7 +148,7 @@ function updateProgress() {
    날짜 선택기
 ========================= */
 const datePicker = document.getElementById("datePicker");
-datePicker.valueAsDate = today;
+datePicker.valueAsDate = initialDate;
 
 datePicker.addEventListener("change", () => {
   stopReading();
@@ -276,11 +278,12 @@ function readVerse() {
 /* =========================
    최초 실행
 ========================= */
-loadBibleByDate(today);
+loadBibleByDate(initialDate);
 </script>
 
 </body>
 </html>
+
 
 
 
